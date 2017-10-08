@@ -81,27 +81,29 @@ case $1 in
         do
                 dest_file=${file##/usbkey/crud}
                 dest_dir=${dest_file%/*}
-                
+
                 test -d "$dest_dir" || mkdir -m 0640 -p "$dest_dir"
                 test -f "$dest_file" || touch "$dest_file"
 
                 mount -F lofs "$file" "$dest_file"
         done
+        exit 0 # needed so that svcadm doesn't try to place things in maintenace mode because of errors in above
         ;;
 'stop')
         for file in $(find /usbkey/crud -type f)
         do
                 dest_file=${file##/usbkey/crud}
                 dest_dir=${dest_file%/*}
-                
                 umount "$dest_file"
                 rm "$dest_file"
                 rmdir "$dest_dir"
         done
+        exit 0 # needed so that svcadm doesn't try to place things in maintenace mode because of errors in above
         ;;
 *)
         echo "Usage $0 { start | stop }"
         exit 1
         ;;
 esac
+
 ```
