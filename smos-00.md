@@ -43,6 +43,8 @@ export MANPATH=/opt/tools/man:$MANPATH
 - Add the service manifest to `/opt/custom/smf`, SmartOS post-boot will automatically pick up the service manifests and import them and enable/disable them.
 - Add service manifest scripts to `/opt/custom/smf/share`.  Useful place for binaries and shell scripts used by the smf file.
 - Below example sourced from:  https://wiki.smartos.org/display/DOC/Allowing+user+CRUD+in+the+global+zone
+
+- Items to mount: `authorized_keys, /etc/hosts, /root/.bashrc`
 ```xml
 <?xml version='1.0'?>
 <!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
