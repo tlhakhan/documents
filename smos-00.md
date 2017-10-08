@@ -37,3 +37,82 @@ tar -zxpf ${BOOTSTRAP_TAR} -C /
 export PATH=/opt/tools/sbin:/opt/tools/bin:$PATH
 export MANPATH=/opt/tools/man:$MANPATH
 ```
+
+### Mounting userfiles post-boot
+- Add the service manifest to `/opt/custom/smf`, SmartOS post-boot will automatically pick up the service manifests and import them and enable/disable them.
+- Add service manifest scripts to `/opt/custom/smf/share`.  Useful place for binaries and shell scripts used by the smf file.
+- Below example sourced from:  https://wiki.smartos.org/display/DOC/Allowing+user+CRUD+in+the+global+zone
+```xml
+<?xml version='1.0'?>
+<!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
+<service_bundle type='manifest' name='export'>
+  <service name='site/mount_usbkey_userfiles' type='service' version='0'>
+    <create_default_instance enabled='true'/>
+    <single_instance/>
+    <dependency name='filesystem' grouping='require_all' restart_on='error' type='service'>
+      <service_fmri value='svc:/system/filesystem/local'/>
+    </dependency>
+    <method_context/>
+    <exec_method name='start' type='method' exec='/opt/custom/smf/share/mount_usbkey_userfiles start' timeout_seconds='60'/>
+    <exec_method name='stop' type='method' exec='/opt/custom/smf/share/mount_usbkey_userfiles stop' timeout_seconds='60'/>
+    <property_group name='startd' type='framework'>
+      <propval name='duration' type='astring' value='transient'/>
+      <propval name='ignore_error' type='astring' value='core,signal'/>
+    </property_group>
+    <property_group name='application' type='application'/>
+    <stability value='Evolving'/>
+    <template>
+      <common_name>
+        <loctext xml:lang='C'>Mount /etc/passwd, /etc/shadow, and /etc/group from /usbkey</loctext>
+      </common_name>
+    </template>
+  </service>
+</service_bundle>
+```
+
+```bash
+#!/usr/bin/bash
+
+case "$1" in
+'start')
+  if [[ -n $(/bin/bootparams | grep '^smartos=true') ]]; then
+    if [[ -z $(/usr/sbin/mount -p | grep '/etc/passwd') ]]; then 
+      if [[ /etc/passwd -ot /usbkey/passwd ]]; then
+        cp /usbkey/passwd /etc/passwd
+      else
+        cp /etc/passwd /usbkey/passwd 
+      fi
+      touch /etc/passwd /usbkey/passwd
+      mount -F lofs /usbkey/passwd /etc/passwd
+    fi
+    if [[ -z $(/usr/sbin/mount -p | grep '/etc/group') ]]; then 
+      if [[ /etc/group -ot /usbkey/group ]]; then
+        cp /usbkey/group /etc/group
+      else
+        cp /etc/group /usbkey/group 
+      fi
+      touch /etc/group /usbkey/group
+      mount -F lofs /usbkey/group /etc/group
+    fi
+    if [[ -z $(/usr/sbin/mount -p | grep '/etc/shadow') ]]; then 
+      if [[ /etc/shadow -ot /usbkey/shadow ]]; then
+        cp /usbkey/shadow /etc/shadow
+      else
+        cp /etc/shadow /usbkey/shadow 
+      fi
+      touch /etc/shadow /usbkey/shadow
+      mount -F lofs /usbkey/shadow /etc/shadow
+    fi
+  fi
+  ;;
+'stop')
+  if [[ -n $(/usr/sbin/mount -p | grep 'group') ]]; then umount /etc/group; touch /etc/group; fi
+  if [[ -n $(/usr/sbin/mount -p | grep 'passwd') ]]; then umount /etc/passwd; touch /etc/passwd; fi
+  if [[ -n $(/usr/sbin/mount -p | grep 'shadow') ]]; then umount /etc/shadow; touch /etc/shadow; fi
+  ;;
+*)
+  echo "Usage: $0 { start | stop }"
+  exit 1
+  ;;
+esac
+```
