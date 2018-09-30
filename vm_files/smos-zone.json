@@ -1,0 +1,23 @@
+ {
+             "brand": "joyent",
+             "quota":"400",
+             "image_uuid": "390639d4-f146-11e7-9280-37ae5c6d53d4",
+             "cpu_shares":"400",
+             "max_physical_memory": 4096,
+             "alias": "nexus-00",
+             "dns_domain":"cloudcity.local",
+             "resolvers":["192.168.100.1"],
+             "nics": [
+               {
+                 "nic_tag": "admin",
+                 "ips": ["192.168.100.251/24"],
+                "gateway":"192.168.100.1",
+                 "primary": true
+               }
+             ],
+   "customer_metadata":{
+    "hostname": "nexus-00",
+    "root_authorized_keys":"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+B6xVQx5giGb7uJ+lvdWZEGJgIufq23wr/xGMin4f0+3LB3qDIt536kknG2j35V7BKqpPqF87IrAwtdNC91XKrDuJJ2UafEoeQnDjz8VFdD/SWrkvbiE7UfkVwjgJrpDcgGrcAe5K2Q2ZD4y6v/Ij2CdTaNN0vv0te6VwpJwvt1c0gyNNNGZuc/FLcGPoNnCTXldf2o0rF9LhyJA6lIUFPL7cE6lVgt1k727CHxpYNGaNSOAHMg4N1x47pHw46tRsGVYdrVLjp0g5DQPzUcGaE3eBqC5Hs3kYixbdpvP9Yi6rZZlFJe7EniPnpBsDyEbhnGYmyNW8Brucm61SzM8d root@packer-00",
+  "user-script" : "/usr/sbin/mdata-get root_authorized_keys > /root/.ssh/authorized_keys; hostname $(/usr/sbin/mdata-get hostname)"
+  }
+           }
