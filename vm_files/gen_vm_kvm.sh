@@ -24,13 +24,13 @@ vmadm create << eof
     "model":"virtio",
     "compression":"lz4"
   }, {
-    "size":10240,
+    "size":150240,
     "compression":"lz4",
     "model":"virtio"
   }],
    "alias":"$hostname",
    "hostname":"$hostname",
-   "ram": 4048,
+   "ram": 1024,
    "resolvers":["$dns1"],
    "nics": [
      {
