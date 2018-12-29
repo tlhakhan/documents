@@ -1,12 +1,16 @@
 #!/bin/bash
 
 hostname=$1
-image_uuid=$2
+mem_size=$(($2 * 1024))
+data_size=$(($3 * 1024))
+image_uuid=$4
 
-if [[ $# -ne 2 ]]
+if [[ $# -ne 4 ]]
 then
-  echo "hostname and image_uuid must be provided"
+  echo "hostname, mem size (gb), data size (gb) and image_uuid must be provided"
   exit 1 
+else
+  echo $hostname $mem_size $data_size $image_uuid
 fi
 
 dns1="192.168.100.1"
@@ -15,7 +19,7 @@ pub_key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+B6xVQx5giGb7uJ+lvdWZEGJgIufq23w
 vmadm create << eof 
  {
   "brand": "kvm",
-  "cpu_shares":"400",
+  "cpu_shares":"100",
   "vcpus":"4",
   "disks":[
    {
@@ -24,13 +28,13 @@ vmadm create << eof
     "model":"virtio",
     "compression":"lz4"
   }, {
-    "size":150240,
+    "size": $data_size,
     "compression":"lz4",
     "model":"virtio"
   }],
    "alias":"$hostname",
    "hostname":"$hostname",
-   "ram": 1024,
+   "ram": $mem_size,
    "resolvers":["$dns1"],
    "nics": [
      {
@@ -41,6 +45,12 @@ vmadm create << eof
      }
    ],
   "customer_metadata":{
-    "root_authorized_keys": "$pub_key" }
+    "root_authorized_keys": "$pub_key",
+    "user-script":"/usr/sbin/mdata-get root_pw | passwd --stdin root"
+  },
+  "internal_metadata":{
+    "root_pw":"root",
+    "admin_pw":"admin"
+  }
  }
 eof

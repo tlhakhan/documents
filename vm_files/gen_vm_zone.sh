@@ -21,10 +21,11 @@ vmadm create << eof
              "quota":"400",
              "image_uuid": "$image_uuid",
              "cpu_shares":"400",
-             "max_physical_memory": 128,
+             "max_physical_memory": 1024,
              "alias": "$hostname",
              "dns_domain":"$dns_domain",
              "resolvers":["$dns1"],
+	     "delegate_dataset":true,
              "nics": [
                {
                  "nic_tag": "admin",
